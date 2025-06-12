@@ -1,0 +1,53 @@
+﻿@page "/active-task"
+
+@rendermode InteractiveServer
+
+@inherits TaskBase
+
+<BgImage />
+
+<div class="w-dvw text-white">
+    @if(ActiveTasks == null)
+    {
+        <div class="mt-10 w-full px-10">
+            <div class="bg-purple-dark-3 w-full space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                <div class="text-2xl">Список заданий пуст</div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var task in ActiveTasks)
+        {
+            <div class="mt-10 w-full px-10">
+                <div class="bg-purple-dark-3 w-full space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex justify-between">
+                        <h1 class="text-2xl">
+                            <a class="cursor-pointer" @onclick="async => NavigationEditorTask(task.Id)">
+                                @task.Title
+                            </a>
+                        </h1>
+                        <div class="flex items-center space-x-1">
+                            <div class="rounded-4xl size-4 bg-red-600"></div>
+                            <div class="">Ожидает решения</div>
+                        </div>
+                    </div>
+                    <div class="min-h-35 w-5/6 space-y-5">
+                        <div>@task.Description</div>
+                        <div>Входные параметры: @String.Join(", ", task.Input)</div>
+                        <div>Выход: @String.Join(", ", task.Output)</div>
+                        @foreach (var lesson in Lessons)
+                        {
+                            @if (lesson.Id == task.LessonId)
+                            {
+                                <div>Урок: @lesson.Title</div>
+                                break;
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    
+</div>

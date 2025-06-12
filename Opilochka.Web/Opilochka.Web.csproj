@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Content Include="tailwind.config.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Opilochka.Core\Opilochka.Core.csproj" />
+      <ProjectReference Include="..\Opilochka.Data\Opilochka.Data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Tailwind.Extensions.AspNetCore" Version="1.0.0" />
+    </ItemGroup>
+
+</Project>

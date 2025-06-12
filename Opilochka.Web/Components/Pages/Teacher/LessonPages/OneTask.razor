@@ -1,0 +1,133 @@
+﻿@page "/lessons/lesson{LessonId:long}/task{TaskId:long}"
+
+@inherits LessonBase
+
+@rendermode InteractiveServer
+
+<BgImage />
+
+<div class="relative w-full p-10 text-white">
+    @if (OneTask == null)
+    {
+        <div>Задание загружается...</div>
+    }
+    else
+    {
+        <div class="bg-purple-dark-3 rounded-sm px-10 py-5 shadow-xl">
+            <div class="flex cursor-pointer justify-between select-none" onclick="toggleTask(this, 'taskBlock')">
+                <h1 class="text-2xl">@OneTask.Title</h1>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 rotate-180 transform transition-transform" id="arrow-icon"
+                viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div id="taskBlock" class="mt-5 flex flex-col space-y-10">
+                <div class="">
+                    @OneTask.Description
+                </div>
+                <div class="flex">
+                    <div class="flex space-x-5 font-light">
+                        @foreach (var user in Users)
+                        {
+                            @if (user.Id == OneTask.UserId)
+                            {
+                                <div class="cursor-pointer hover:underline">@user.FirstName @user.SecondName</div>
+                                break;
+                            }
+                        }
+
+                        @foreach (var group in Groups)
+                        {
+                            foreach (var user in Users)
+                            {
+                                @if (user.GroupId == group.Id)
+                                {
+                                    <div class="cursor-pointer hover:underline">Группа: @group.Name</div>
+                                    break;
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if(Answer.TaskId == OneTask.Id)
+        {
+            <div class="mt-10">
+                <div class="bg-purple-dark-3 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex cursor-pointer items-center justify-between select-none" onclick="toggleTask(this, 'codeBlock')">
+                        <h1 class="text-2xl">Ответ</h1>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 rotate-0 transform transition-transform" id="arrow-icon"
+                             viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div id="codeBlock" class="hidden">
+                        <pre class="mt-5 overflow-auto rounded-md bg-gray-800 p-5 text-sm">
+                            @Answer.TextAnswer
+                                            </pre>
+                    </div>
+                </div>
+            </div>
+        }
+        @if(ResultCheck.TaskId == OneTask.Id)
+        {
+            <div class="mt-10">
+                <div class="bg-purple-dark-3 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex cursor-pointer items-center justify-between select-none" onclick="toggleTask(this, 'aiBlock')">
+                        <h1 class="text-2xl">Оценка</h1>
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             class="h-6 w-6 rotate-0 transform transition-transform" id="arrow-icon"
+                             viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                  clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div id="aiBlock" class="mt-5 hidden space-y-5">
+                        <div>
+                            <label for="points">Оценка</label>
+                            <input type="number" value="@ResultCheck.Scores"
+                                   class="mt-2 w-full rounded-lg bg-gray-800 px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="answer">Комментарий</label>
+                            <textarea name="answer" class="mt-2 h-[25lvh] w-full resize-none rounded-md bg-gray-800 p-5 text-sm">
+                                @ResultCheck.Comment
+                            </textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Подтверждение -->
+            <div class="flex justify-center">
+                <button @onclick="async => UpdateResult()" class="button-opacity-dark bg-purple-light-2 mt-10 cursor-pointer rounded-sm px-10 py-5">
+                    Сохранить
+                </button>
+            </div>
+        }
+    }
+</div>
+
+
+<script>
+    function toggleTask(task, blockId) {
+        const codeBlock = document.getElementById(blockId)
+        const arrowIcon = task.querySelector('svg');
+
+        if(codeBlock.classList.contains('hidden')){
+            codeBlock.classList.remove('hidden');
+            arrowIcon.classList.toggle('rotate-180');
+        } else {
+            codeBlock.classList.add('hidden');
+            arrowIcon.classList.toggle('rotate-180');
+        }
+    }
+</script>

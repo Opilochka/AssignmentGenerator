@@ -1,0 +1,41 @@
+﻿@page "/login"
+@layout EmptyLayout
+
+@rendermode InteractiveServer
+
+@inherits LoginBase
+
+<div class="h-lvh flex items-center justify-center p-5">
+    <div class="bg-purple-light-3 h-105 w-100 p-10 rounded-xl">
+        <h1 class="font-purple-dark-2 text-4xl text-center font-bold">Вход</h1>
+        <div>
+            <div class="mt-10">
+                <label for="first-name" class="block text-sm/6 font-semibold text-gray-900">Логин</label>
+                <div class="mt-2.5">
+                    <input @bind-value="@Email" type="email" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                </div>
+            </div>
+
+            <div class="mt-2.5">
+                <label for="first-name" class="block text-sm/6 font-semibold text-gray-900">Пароль</label>
+                <div class="mt-2.5">
+                    <input @bind-value="@Password" type="password" name="first-name" id="first-name" autocomplete="given-name" class="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                </div>
+            </div>
+
+            <div class="mt-10">
+                <button @onclick="async => OnLogin()" type=" submit" class="block w-full rounded-md bg-purple-light-2 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs cursor-pointer">Войти</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    button:hover {
+        transition: ease 0.5s;
+        background-color: #5a189a;
+    }
+</style>
+
+
+

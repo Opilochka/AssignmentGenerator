@@ -1,0 +1,68 @@
+﻿@page "/users/create"
+@using Opilochka.Core.Enums
+@using Opilochka.Web.Components.Pages.Admin.User
+
+@inherits UserBase
+
+@rendermode InteractiveServer
+
+
+<div class="w-dvw p-5 px-10 text-white">
+    <h1 class="mb-10 ml-2 text-3xl">Добавить пользователя</h1>
+
+    <div class="ml-2 grid w-1/2 grid-cols-2 gap-x-5 text-white">
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block font-semibold">Имя</label>
+            <div class="mt-2.5">
+                <input @bind-value="User.FirstName" type="text" class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block font-semibold">Фамилия</label>
+            <div class="mt-2.5">
+                <input @bind-value="User.SecondName"  type="text" class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block font-semibold">Email</label>
+            <div class="mt-2.5">
+                <input @bind-value="User.Email" type="text" class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block font-semibold">Группа</label>
+            <div class="mt-2.5">
+                <select @bind="User.GroupId" class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    <option></option>
+                    @if (Groups == null)
+                    {
+                        <option>Загрузка...</option>
+                    }
+                    else
+                    {
+                        @foreach (var group in Groups)
+                        {
+                            <option value="@group.Id">@group.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block font-semibold">Роль</label>
+            <div class="mt-2.5">
+                <select @bind="User.Role" class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    <option value="@Role.Student">Студент</option>
+                    <option value="@Role.Teacher">Преподаватель</option>
+                    <option value="@Role.Admin">Администратор</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="flex w-1/2 justify-center">
+        <button @onclick="async => SaveUser()" class=" ml-2 mt-10 button-opacity-dark py-1 px-3 bg-purple-dark-4 rounded-sm cursor-pointer">Подтвердить</button>
+    </div>
+</div>
+
+
+

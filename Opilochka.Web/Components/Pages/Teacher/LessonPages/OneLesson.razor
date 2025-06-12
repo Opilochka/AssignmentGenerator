@@ -1,0 +1,202 @@
+﻿@page "/lessons/lesson{LessonId:long}"
+
+@using Opilochka.Data.Enums
+@using Opilochka.Web.Components.Pages.Teacher.LessonPages
+
+@inherits LessonBase
+
+@rendermode InteractiveServer
+
+<BgImage />
+
+<div class="w-dvw text-white">
+    <div class="relative h-50 overflow-hidden">
+        <img class="absolute -translate-y-1/2 object-cover" src="img/card{@((int)LessonOutput.Icon)}.jpg" alt="">
+    </div>
+    <div class="mt-10 flex justify-between px-20">
+        <h1 class="text-3xl">@LessonOutput.Title</h1>
+        <div class="flex items-center">
+            <button onclick="openModal()" class="icon-button-fill-red ml-5 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                class="bi bi-trash3" viewBox="0 0 16 16">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+                </svg>
+            </button>
+            <div id="modal" class="modal hidden text-black">
+                <div class="modal-content space-y-10">
+                    <p>Вы уверены?</p>
+                    <button @onclick="async => HandleDeleteLesson()" class="cursor-pointer rounded-sm bg-red-400 px-5 py-1 hover:bg-red-500">
+                        Удалить
+                    </button>
+                    <button class="cursor-pointer rounded-sm bg-gray-400 px-5 py-1 hover:bg-gray-500"
+                    onclick="closeModal()">
+                        Отмена
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="form-container"
+    class="flex h-0 w-full justify-center p-5 px-10 pt-20 text-white transition-all duration-500">
+        <div class="flex flex-col items-center overflow-hidden">
+            <div>
+                <label for="" class="mb-2.5 block text-sm">Название урока</label>
+                <div class="align-center flex">
+                    <div>
+                        <input placeholder="Введите" type="text"
+                        class="px-3.5 block w-full rounded-md bg-white py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    </div>
+                    <div>
+                        <button class="button-opacity-dark bg-purple-dark-4 ml-2 cursor-pointer rounded-sm px-3 py-1">
+                            Подтвердить
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 grid grid-cols-8 gap-5">
+                @for (int i = 1; i <= 8; i++)
+                {
+                    <label for="radio@i" class="cursor-pointer">
+                        <input value="@i" @onchange="() => Lesson.Icon = (LessonIcon)i" type="radio" id="radio@i" name="card" class="input-image-checked hidden">
+                        <img src="/img/card{@i}.jpg" alt="Card @i" class="size-24 rounded-sm object-cover">
+                    </label>
+                }
+            </div>
+        </div>
+    </div>
+    @foreach (var task in NoCheckTasks)
+    {
+        if (task.LessonId == LessonId)
+        {
+            <div class="mt-10 w-full px-10">
+                <div class="bg-purple-dark-3 w-full space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex justify-between">
+                        <h1 class="text-2xl">
+                            <a class="cursor-pointer" @onclick="async => NavigationTask(task.Id)">
+                                @task.Title
+                            </a>
+                        </h1>
+                        <div class="flex items-center space-x-1">
+                            <div class="rounded-4xl size-4 bg-yellow-600"></div>
+                            <div class="">Ожидает проверки</div>
+                        </div>
+                    </div>
+                    <div class="min-h-35 w-5/6 space-y-5">
+                        <div>@task.Description</div>
+                        <div>Входные параметры: @String.Join(", ", task.Input)</div>
+                        <div>Выход: @String.Join(", ", task.Output)</div>
+                        @foreach (var user in Users)
+                        {
+                            @if (user.Id == task.UserId)
+                            {
+                                <div>Студент: @user.FirstName @user.SecondName</div>
+                                break;
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    @foreach (var task in CheckTasks)
+    {
+        if (task.LessonId == LessonId)
+        {
+            <div class="mt-10 w-full px-10">
+                <div class="bg-purple-dark-3 w-full space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex justify-between">
+                        <h1 class="text-2xl">
+                            <a class="cursor-pointer" @onclick="async => NavigationTask(task.Id)">
+                                @task.Title
+                            </a>
+                        </h1>
+                        <div class="flex items-center space-x-1">
+                            <div class="rounded-4xl size-4 bg-green-800"></div>
+                            <div class="font-light">Проверено</div>
+                        </div>
+                    </div>
+                    <div class="min-h-35 w-5/6 space-y-5">
+                        <div>@task.Description</div>
+                        <div>Входные параметры: @String.Join(", ", task.Input)</div>
+                        <div>Выход: @String.Join(", ", task.Output)</div>
+                        @foreach (var user in Users)
+                        {
+                            @if (user.Id == task.UserId)
+                            {
+                                <div>Студент: @user.FirstName @user.SecondName</div>
+                                break;
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    @foreach (var task in ActiveTasks)
+    {
+        if (task.LessonId == LessonId)
+        {
+            <div class="mt-10 w-full px-10">
+                <div class="bg-purple-dark-3 w-full space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex justify-between">
+                        <h1 class="text-2xl">
+                            <a class="cursor-pointer" @onclick="async => NavigationTask(task.Id)">
+                                @task.Title
+                            </a>
+                        </h1>
+                        <div class="flex items-center space-x-1">
+                            <div class="rounded-4xl size-4 bg-gray-600"></div>
+                            <div class="">Не выполнено</div>
+                        </div>
+                    </div>
+                    <div class="min-h-35 w-5/6 space-y-5">
+                        <div>@task.Description</div>
+                        <div>Входные параметры: @String.Join(", ", task.Input)</div>
+                        <div>Выход: @String.Join(", ", task.Output)</div>
+                        @foreach (var user in Users)
+                        {
+                            @if (user.Id == task.UserId)
+                            {
+                                <div>Студент: @user.FirstName @user.SecondName</div>
+                                break;
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<script>
+    // скрыть/показать блок
+    const toggleButton = document.getElementById('toggle-button');
+    const formContainer = document.getElementById('form-container');
+
+    toggleButton.addEventListener('click', () => {
+        if (formContainer.classList.contains('h-0')) {
+            formContainer.classList.remove('h-0');
+            formContainer.classList.add('h-auto', 'pt-20');
+        } else {
+            formContainer.classList.add('h-0');
+            formContainer.classList.remove('h-auto', 'pt-20');
+        }
+    });
+
+    // модальное окно для удаления
+    function openModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.add('hidden');
+    }
+
+    function deleteUser() {
+        closeModal();
+    }
+</script>
+

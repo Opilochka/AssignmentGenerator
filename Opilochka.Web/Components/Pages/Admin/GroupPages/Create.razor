@@ -1,0 +1,23 @@
+﻿@page "/groups/create"
+@using Opilochka.Core.ViewModels
+
+@inherits GroupBase
+
+@rendermode InteractiveServer
+
+
+<div class="text-white p-5 px-10 w-dvw">
+    <h1 class="text-3xl mb-10 ml-2">Добавить пользователя</h1>
+
+    <div class="grid grid-cols-2 ml-2 w-1/2 text-white gap-x-5">
+        <div class="mt-10">
+            <label for="" class="block text-sm/6 font-semibold">Название</label>
+            <div class="mt-2.5">
+                <input @bind-value="Group.Name" type="text" class="w-full block rounded-md bg-white px-3.5 py-1 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+            </div>
+        </div>
+    </div>
+    <div class="w-1/2 flex justify-center">
+        <button @onclick="async => SaveGroup()" class=" ml-2 mt-10 button-opacity-dark py-1 px-3 bg-purple-dark-4 rounded-sm cursor-pointer">Подтвердить</button>
+    </div>
+</div>

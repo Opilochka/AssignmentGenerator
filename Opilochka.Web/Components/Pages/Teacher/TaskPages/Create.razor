@@ -1,0 +1,156 @@
+﻿@page "/tasks"
+@inherits TaskBase
+
+@rendermode InteractiveServer
+
+<BgImage/>
+<div class="flex w-dvw flex-col items-center p-5 px-10 text-white">
+    <h1 class="mb-10 ml-2 text-3xl">Добавить Задание</h1>
+
+    <div class="mt-10 ml-2 grid w-1/2 grid-cols-2 gap-x-5 text-white">
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block">Тема</label>
+            <div class="mt-2.5">
+                <input @bind-value="@TaskRequest.Title" placeholder="Введите" type="text" class="px-3.5 block w-full rounded-md bg-white py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block">Группа</label>
+            <div class="mt-2.5">
+                <select @bind="StudyGroup.Id" placeholder="Введите" class="px-3.5 block w-full rounded-md bg-white py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    @if (Groups == null)
+                    {
+                        <option>Загрузка...</option>
+                    }
+                    else
+                    {
+                        <option value=""></option>
+                        @foreach (var group in Groups)
+                        {
+                            <option value="@group.Id">@group.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block">Сложность</label>
+            <div class="mt-2.5">
+                <select class="px-3.5 block w-full rounded-md bg-white py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    <option value="@TaskRequest.Difficult">1</option>
+                    <option value="@TaskRequest.Difficult">2</option>
+                    <option value="@TaskRequest.Difficult">3</option>
+                    <option value="@TaskRequest.Difficult">4</option>
+                    <option value="@TaskRequest.Difficult">5</option>
+                    <option value="@TaskRequest.Difficult">6</option>
+                    <option value="@TaskRequest.Difficult">7</option>
+                    <option value="@TaskRequest.Difficult">8</option>
+                    <option value="@TaskRequest.Difficult">9</option>
+                    <option value="@TaskRequest.Difficult">10</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-10">
+            <label for="" class="text-sm/6 block">Урок</label>
+            <div class="mt-2.5">
+                <select @bind="Lesson.Id" placeholder="Введите" class="px-3.5 block w-full rounded-md bg-white py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600">
+                    @if(Lessons == null)
+                    {
+                        <option>Загрузка...</option>
+                    }
+                    else
+                    {
+                        <option value=""></option>
+                        @foreach (var lesson in Lessons)
+                        {
+                            if(lesson.UserId == UserId)
+                            {
+                                <option value="@lesson.Id">@lesson.Title</option>
+                            }  
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+    <button @onclick="async => TasksPreviewGenerate()" class="button-opacity-dark bg-purple-dark-4 mt-20 mb-10 ml-2 cursor-pointer rounded-sm px-10 py-2">Сгенерировать</button>
+
+    @if (ActivateLoader)
+    {
+        <div class="flex w-full justify-center">
+            <div class="loader"></div>
+        </div>
+    }
+    else
+    {
+        foreach (var task in TasksPreview)
+        {
+            <div class="mt-10 w-full">
+                <div class="bg-purple-dark-3 space-y-10 rounded-sm px-10 py-5 shadow-xl">
+                    <div class="flex justify-between">
+                        <h1 class="text-2xl">@task.Title</h1>
+                        <div class="flex items-center">
+                            <button @onclick="async => TaskUpPreviewGenerate(task)" id="toggle-button" class="hover-rotate cursor-pointer">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                                </svg>
+                            </button>
+                            <button @onclick="async => SaveTaskAsync(task, Lesson.Id, UsersTask[TasksPreview.IndexOf(task)].Id)" class="icon-button-fill-green ml-5 cursor-pointer" disabled="@IsTaskUpdated(task)">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                                    <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="min-h-35 w-5/6 space-y-5">
+                        <div>@task.Description</div>
+                        <div>Входные параметры: @String.Join(", ", task.Input)</div>
+                        <div>Выход: @String.Join(", ", task.Output)</div>
+                        <div>Студент: @UsersTask[TasksPreview.IndexOf(task)].FirstName @UsersTask[TasksPreview.IndexOf(task)].SecondName</div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<style>
+    @@keyframes rotation {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loader {
+        z-index: 10;
+        width: 64px;
+        height: 64px;
+        border: 5px solid #FFF;
+        border-bottom-color: #c77dff;
+        border-radius: 50%;
+        display: inline-block;
+        box-sizing: border-box;
+        animation: rotation 1s linear infinite;
+    }
+</style>
+
+<script>
+    function openModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.add('hidden');
+    }
+
+    function deleteUser() {
+        closeModal();
+    }
+</script>

@@ -1,0 +1,140 @@
+﻿@page "/active-task/editor{TaskId:long}"
+
+@using Opilochka.Web.Components.Pages.Student.Tasks
+@using Opilochka.Web.Services.Student
+
+@inherits TaskBase
+
+@rendermode InteractiveServer 
+
+<div class="w-lvw p-5">
+    @if(OneTask != null)
+    {
+        <div class="space-y-5 text-white">
+            <h1 class="text-3xl">@OneTask.Title</h1>
+            <div class="mb-10">
+                @OneTask.Description
+            </div>
+        </div>
+    }
+    <div class="mb-5 flex w-full justify-center">
+        <label for="language-select" class="sr-only">Выберите язык программирования</label>
+        <select @onchange="OnLanguageChange" id="language-select"
+                class="p-2.5 placeholder-gray-900 block w-1/3 border-gray-600 bg-gray-900 text-white focus:ring-gray-500 focus:border-gray-500">
+            <option value="">Выберите язык программирования</option>
+            <option value="python3">Python 🐍</option>
+            <option value="c">C ⚙️</option>
+            <option value="cpp">C++ ➕➕</option>
+            <option value="csharp">C# ❖</option>
+            <option value="javascript">JavaScript 🌐</option>
+        </select>
+    </div>
+
+    <div class="mt-5 flex h-[50lvh] space-x-5">
+        <div id="monaco-editor" class="border-1 h-full w-1/2 border-purple-500"></div>
+        <textarea disabled name="message" id="message" rows="4"
+                  class="px-3.5 block max-h-full w-1/2 max-w-1/2 bg-gray-900 py-2 text-base text-white outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-gray-900"
+                  aria-label="Отображение вывода">@AnswerCompiler</textarea>
+    </div>
+
+    <div class="font-normal">
+        <div class="mt-10 flex justify-around space-x-10">
+            <button type="button" @onclick="CompileCode"
+                    class="bg-purple-light-1 button-opacity px-3.5 py-2.5 block cursor-pointer rounded-md text-center text-sm text-white shadow-xs transition delay-100 duration-150 ease-in-out">
+                Скомпилировать
+            </button>
+            <button type="button" @onclick="async => SaveAnswer(EditorContent, AnswerCompiler)"
+                    class="px-3.5 py-2.5 block cursor-pointer rounded-md bg-gray-300 text-center text-sm text-black shadow-xs transition delay-100 duration-150 ease-in-out hover:bg-gray-500">
+                Сохранить ответ
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    [Inject]
+    public IJSRuntime JS { get; set; } = default!;
+
+    [Inject]
+    public CompilerService CompilerService { get; set; } = default!;
+
+    public string? AnswerCompiler { get; set; } = "Здесь будет отображаться вывод программы";
+    public string EditorContent { get; set; } = string.Empty;
+    public string SelectedLanguage { get; set; } = string.Empty;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await InitializeEditor();
+        }
+    }
+
+    private async Task InitializeEditor()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("initializeMonaco", SelectedLanguage);
+        }
+        catch (Exception ex)
+        {
+            LogAndDisplayError(ex, "Ошибка инициализации редактора");
+        }
+    }
+
+    public async Task CompileCode()
+    {
+        try
+        {
+            await UpdateEditorContent();
+
+            var compilerResponse = await CompilerService.GetAnswerCompilerAsync(EditorContent, SelectedLanguage);
+            Logger?.LogInformation("Ответ: " + compilerResponse.error);
+            Logger?.LogInformation("Ошибка: " + compilerResponse.output);
+
+            if (compilerResponse != null)
+            {
+                if (!string.IsNullOrEmpty(compilerResponse.error))
+                {
+                    AnswerCompiler = $"Ошибка: {compilerResponse.error}";
+                }
+                else
+                {
+                    AnswerCompiler = compilerResponse.output ?? "Вывод отсутствует";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            LogAndDisplayError(ex, "Ошибка получения значения редактора");
+        }
+    }
+
+    public async Task OnLanguageChange(ChangeEventArgs e)
+    {
+        if (e.Value is string selectedLanguage && !string.IsNullOrWhiteSpace(selectedLanguage))
+        {
+            SelectedLanguage = selectedLanguage;
+            await InitializeEditor().ConfigureAwait(false);
+        }
+    }
+
+    public async Task UpdateEditorContent()
+    {
+        try
+        {
+            EditorContent = await JS.InvokeAsync<string>("getEditorValue");
+        }
+        catch (Exception ex)
+        {
+            LogAndDisplayError(ex, "Ошибка получения значения редактора");
+        }
+    }
+
+    private void LogAndDisplayError(Exception ex, string message)
+    {
+        Logger?.LogError(ex, message);
+    }
+}

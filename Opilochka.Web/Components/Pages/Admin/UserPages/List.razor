@@ -1,0 +1,153 @@
+﻿@page "/users"
+@using Opilochka.Web.Components.Pages.Admin.User
+@inherits UserBase
+
+@rendermode InteractiveServer
+
+<div class="w-dvw p-5 px-10 text-white">
+    @if (Users == null)
+    {
+        <p><em>Загрузка...</em></p>
+    }
+    else
+    {
+        <h1 class="mb-10 ml-2 text-3xl">@Title</h1>
+        <div class="relative mt-12 ml-2 flex gap-5">
+            <SearchBox Items="Users" OnSearch="UpdateListUsers"></SearchBox>
+            <button @onclick = "async => NavigationCreate()" class="flex items-center gap-2 button-opacity-dark button-add px-3 bg-purple-dark-4 rounded-sm cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
+                </svg>
+                Добавить
+            </button>
+        </div>
+
+        <div class="mt-15 grid grid-cols-[1fr_1fr_1fr_1fr_18px_18px] gap-x-10 gap-y-5">
+            <div class="ml-2 font-bold">Имя</div>
+            <div class="ml-2 font-bold">Фамилия</div>
+            <div class="ml-2 font-bold">Email</div>
+            <div class="ml-2 font-bold">Группа</div>
+            <div class="ml-2"></div>
+            <div class="ml-2"></div>
+
+            @foreach (var user in @FilteredUsers)
+            {
+                <div class="select-link rounded-sm p-2">@user.FirstName</div>
+                <div class="select-link rounded-sm p-2">@user.SecondName</div>
+                <div class="select-link rounded-sm p-2">@user.Email</div>
+                @if (Groups != null)
+                {
+                    @foreach (var group in @Groups)
+                    {
+                        @if(user.GroupId == null)
+                        {
+                            <div class="select-link rounded-sm p-2">-</div>
+                            break;
+                        }
+                        @if (user.GroupId == group.Id && user.GroupId != null)
+                        {
+                            <div class="select-link rounded-sm p-2">@group.Name</div>
+                            break;
+                        }
+                    }
+                }
+                <button @onclick="async => NavigationUpdate(user.Id)" class="icon-button-fill-pink cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                    </svg>
+                </button>
+                <button @onclick="async => IdDel(user.Id)" class="icon-button-fill-red cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                    class="bi bi-trash3" viewBox="0 0 16 16">
+                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z" />
+                    </svg>
+                </button>
+                <div id="modal" class="modal hidden text-black">
+                    <div class="modal-content space-y-10">
+                        <p>Вы уверены, что хотите удалить пользователя?</p>
+                        <button @onclick="async => HandleDeleteUser()" class="px-5 py-1 bg-red-400 hover:bg-red-500 cursor-pointer rounded-sm">Удалить</button>
+                        <button class="cursor-pointer rounded-sm bg-gray-400 px-5 py-1 hover:bg-gray-500" onclick="closeModal()">Отмена</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+<style>
+    .button-opacity:hover {
+        transition: ease 0.5s;
+        background-color: #5a189a;
+    }
+
+    .button-opacity-dark:hover {
+        transition: ease 0.5s;
+        background-color: #3c096c;
+    }
+
+    .icon-button-fill-pink:hover svg {
+        fill: #5a189a;
+        transition: 0.5s;
+        transform: scale(1.1);
+    }
+
+    .icon-button-fill-red:hover svg {
+        fill: #ef4444;
+        transition: 0.5s;
+        transform: scale(1.1);
+    }
+
+    .select-link:hover {
+        background-color: #240046;
+    }
+
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>
+
+<script>
+    function openModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.remove('hidden');
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        modal.classList.add('hidden');
+    }
+
+    function deleteUser() {
+        closeModal();
+    }
+
+    function RefreshUser() {
+        location.reload();
+    }
+</script>
+
+
+
+

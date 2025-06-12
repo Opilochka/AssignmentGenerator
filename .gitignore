@@ -1,0 +1,56 @@
+# Visual Studio
+.vs/
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Bb]in/
+[Oo]bj/
+[Ll]ogs/
+
+# DotNet Core
+project.lock.json
+project.fragment.lock.json
+*.db
+*.db-journal
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+*.sln.ide
+*.sln.docstates
+*.vs/
+*.vscode/
+
+# Rider
+.idea/
+*.sln.iml
+
+# Visual Studio Code
+.vscode/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NPM
+node_modules/
+package-lock.json
+
+# Publish files
+publish/
+
+# Others
+*.pdb
+*.cache
+*.log
+*.tmp
+*.dSYM/
+*.tgz
+*.zip
+*.rar
+.appsettings.json
