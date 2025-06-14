@@ -48,7 +48,7 @@ jobs:
               echo "Updating existing repository..."
               cd \$PROJECT_DIR
               git fetch --all
-              git reset --hard origin/main
+              git reset --hard origin/prod
               git pull origin prod
             else
               echo "Cloning repository..."
