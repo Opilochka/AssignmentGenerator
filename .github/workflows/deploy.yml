@@ -54,7 +54,7 @@ jobs:
               echo "Cloning repository..."
               mkdir -p \$PROJECT_DIR
               cd \$PROJECT_DIR
-              git clone -b main git@github.com:Opilochka/AssignmentGenerator.git .
+              git clone -b prod git@github.com:Opilochka/AssignmentGenerator.git .
             fi
       
             # Установка Docker Compose (если ещё не установлен)
