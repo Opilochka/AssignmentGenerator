@@ -3,7 +3,7 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - main
+      - prod
 
 jobs:
   deploy:
@@ -84,4 +84,3 @@ jobs:
             docker compose up -d --build
       
             echo "✅ Deployment completed successfully!"
-EOF
