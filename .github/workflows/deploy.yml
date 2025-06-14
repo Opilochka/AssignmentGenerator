@@ -37,7 +37,7 @@ jobs:
           OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
           OPENAI_URL=${{ secrets.OPENAI_URL }}
       
-          ssh root@31.130.151.91 << EOF
+          ssh root@194.31.173.20 << EOF
             set -e
             echo "Starting deployment..."
       
@@ -54,7 +54,7 @@ jobs:
               echo "Cloning repository..."
               mkdir -p \$PROJECT_DIR
               cd \$PROJECT_DIR
-              git clone -b main git@github.com:Opilochka/WorkHunter.git .
+              git clone -b main git@github.com:Opilochka/AssignmentGenerator.git .
             fi
       
             # Установка Docker Compose (если ещё не установлен)
