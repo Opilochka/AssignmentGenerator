@@ -1,0 +1,6 @@
+services:
+  opilochka.api:
+    image: ${DOCKER_REGISTRY-}opilochkaapi
+    build:
+      context: .
+      dockerfile: Opilochka.API/Dockerfile
