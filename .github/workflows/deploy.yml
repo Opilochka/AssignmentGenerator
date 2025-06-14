@@ -49,7 +49,7 @@ jobs:
               cd \$PROJECT_DIR
               git fetch --all
               git reset --hard origin/main
-              git pull origin main
+              git pull origin prod
             else
               echo "Cloning repository..."
               mkdir -p \$PROJECT_DIR
