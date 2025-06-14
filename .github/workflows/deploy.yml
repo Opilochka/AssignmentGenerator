@@ -84,4 +84,3 @@ jobs:
             docker compose up -d --build
       
             echo "✅ Deployment completed successfully!"
-EOF
