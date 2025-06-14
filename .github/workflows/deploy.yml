@@ -1,0 +1,87 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонируем репозиторий
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Настройка SSH
+      - name: Set up SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+      # Шаг 3: Подключение к серверу и выполнение деплоя
+      - name: Deploy to VPS
+        run: |
+          # Передаем переменные окружения
+          SSH_USER=${{ secrets.SSH_USERNAME }}
+          DOCKER_USER=${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS=${{ secrets.DOCKER_PASSWORD }}
+          DB_CONNECTION_STRING=${{ secrets.DB_CONNECTION_STRING }}
+          JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+          JWT_EXPIRES_HOURS=${{ secrets.JWT_EXPIRES_HOURS }}
+          COMPILER_CLIENT_ID=${{ secrets.COMPILER_CLIENT_ID }}
+          COMPILER_CLIENT_SECRET=${{ secrets.COMPILER_CLIENT_SECRET }}
+          COMPILER_URL=${{ secrets.COMPILER_URL }}
+          OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+          OPENAI_URL=${{ secrets.OPENAI_URL }}
+      
+          ssh root@31.130.151.91 << EOF
+            set -e
+            echo "Starting deployment..."
+      
+            # Путь к проекту на сервере
+            PROJECT_DIR=/home/$SSH_USER/workhunter
+      
+            if [ -d \$PROJECT_DIR ]; then
+              echo "Updating existing repository..."
+              cd \$PROJECT_DIR
+              git fetch --all
+              git reset --hard origin/main
+              git pull origin main
+            else
+              echo "Cloning repository..."
+              mkdir -p \$PROJECT_DIR
+              cd \$PROJECT_DIR
+              git clone -b main git@github.com:Opilochka/WorkHunter.git .
+            fi
+      
+            # Установка Docker Compose (если ещё не установлен)
+            echo "Installing Docker Compose..."
+            DOCKER_CONFIG=\$HOME/.docker
+            mkdir -p \$DOCKER_CONFIG/cli-plugins
+            curl -SL https://github.com/docker/compose/releases/download/v2.23.0/docker-compose-linux-x86_64  -o \$DOCKER_CONFIG/cli-plugins/docker-compose
+            chmod +x \$DOCKER_CONFIG/cli-plugins/docker-compose
+      
+            # Вход в Docker Hub
+            echo "Logging in to Docker Hub..."
+            echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
+      
+            # Сборка и запуск контейнеров
+            cd \$PROJECT_DIR
+            export ASPNETCORE_ENVIRONMENT=Development
+            export DB_CONNECTION_STRING="$DB_CONNECTION_STRING"
+            export JWT_SECRET_KEY="$JWT_SECRET_KEY"
+            export JWT_EXPIRES_HOURS="$JWT_EXPIRES_HOURS"
+            export COMPILER_CLIENT_ID="$COMPILER_CLIENT_ID"
+            export COMPILER_CLIENT_SECRET="$COMPILER_CLIENT_SECRET"
+            export COMPILER_URL="$COMPILER_URL"
+            export OPENAI_API_KEY="$OPENAI_API_KEY"
+            export OPENAI_URL="$OPENAI_URL"
+
+            docker compose down || true
+            docker compose up -d --build
+      
+            echo "✅ Deployment completed successfully!"
+EOF
