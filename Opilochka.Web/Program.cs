@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Opilochka.Web.Components;
 using Opilochka.Web.Security;
 using Opilochka.Web.Services;
@@ -29,8 +30,13 @@ builder.Services.AddScoped<HttpRequestHandler>();
 // Конфигурация HttpClient для API
 builder.Services.AddHttpClient("ApiClient", options =>
 {
-    options.BaseAddress = new Uri("http://localhost:60001/api/");
+    options.BaseAddress = new Uri("http://localhost:32770/api/");
 });
+
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(@"C:\path\to\your\keys")) // Укажите свой путь
+    .SetApplicationName("YourApplicationName"); // Уникальное имя приложения
 
 
 // Регистрация Razor компонентов

@@ -1,6 +1,46 @@
+version: '3.8'
+
 services:
   opilochka.api:
     image: ${DOCKER_REGISTRY-}opilochkaapi
     build:
       context: .
-      dockerfile: Opilochka.API/Dockerfile
+      dockerfile: Opilochka.API/Dockerfile 
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      DB_CONNECTION_STRING: "${DB_CONNECTION_STRING}" 
+      JWT_SECRET_KEY: "${JWT_SECRET_KEY}"
+      JWT_EXPIRES_HOURS: "${JWT_EXPIRES_HOURS}"
+      COMPILER_CLIENT_ID: "${COMPILER_CLIENT_ID}"
+      COMPILER_CLIENT_SECRET: "${COMPILER_CLIENT_SECRET}"
+      COMPILER_URL: "${COMPILER_URL}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY}"
+      OPENAI_URL: "${OPENAI_URL}"
+    depends_on:
+      - db 
+
+  opilochka.web:
+    image: ${DOCKER_REGISTRY-}opilochkaweb
+    build:
+      context: .
+      dockerfile: Opilochka.Web/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - opilochka.api
+
+  db:
+    image: postgres:latest 
+    environment:
+      POSTGRES_DB: Demo 
+      POSTGRES_USER: topsecret 
+      POSTGRES_PASSWORD: 12345  
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data 
+
+volumes:
+  postgres_data:

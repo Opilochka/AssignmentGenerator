@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Opilochka.API;
 using Opilochka.API.Extensions;
 using Opilochka.Core.Auth;
@@ -8,24 +9,67 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 var configuration = builder.Configuration;
 
-//builder.WebHost.UseUrls("http://0.0.0.0:5001");
+// Добавление конфигурации из appsettings.json
+builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-//var allowedOrigin = "https://app.opilochka.ru/";
+// Добавление конфигурации из переменных окружения
+builder.Configuration.AddEnvironmentVariables();
 
-//services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificOrigin",
-//        builder =>
-//        {
-//            builder.WithOrigins(allowedOrigin)
-//                   .AllowAnyHeader()
-//                   .AllowAnyMethod();
-//        });
-//});
+// Настройка строки подключения
+var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+if (!string.IsNullOrEmpty(connectionString))
+{
+    builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+}
 
-services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
-services.Configure<CompilerOptions>(configuration.GetSection(nameof(CompilerOptions)));
-services.Configure<OpenAIOptions>(configuration.GetSection(nameof(OpenAIOptions)));
+// Настройка параметров JWT
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+if (!string.IsNullOrEmpty(jwtSecretKey))
+{
+    builder.Configuration["JwtOptions:SecretKey"] = jwtSecretKey;
+}
+
+var jwtExpiresHours = Environment.GetEnvironmentVariable("JWT_EXPIRES_HOURS");
+if (!string.IsNullOrEmpty(jwtExpiresHours))
+{
+    builder.Configuration["JwtOptions:ExpiresHours"] = jwtExpiresHours;
+}
+
+// Настройка параметров компилятора
+var compilerClientId = Environment.GetEnvironmentVariable("COMPILER_CLIENT_ID");
+if (!string.IsNullOrEmpty(compilerClientId))
+{
+    builder.Configuration["CompilerOptions:ClientId"] = compilerClientId;
+}
+
+var compilerClientSecret = Environment.GetEnvironmentVariable("COMPILER_CLIENT_SECRET");
+if (!string.IsNullOrEmpty(compilerClientSecret))
+{
+    builder.Configuration["CompilerOptions:ClientSecret"] = compilerClientSecret;
+}
+
+var compilerUrl = Environment.GetEnvironmentVariable("COMPILER_URL");
+if (!string.IsNullOrEmpty(compilerUrl))
+{
+    builder.Configuration["CompilerOptions:URL"] = compilerUrl;
+}
+
+// Настройка параметров OpenAI
+var openAiApiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+if (!string.IsNullOrEmpty(openAiApiKey))
+{
+    builder.Configuration["OpenAIOptions:ApiKey"] = openAiApiKey;
+}
+
+var openAiUrl = Environment.GetEnvironmentVariable("OPENAI_URL");
+if (!string.IsNullOrEmpty(openAiUrl))
+{
+    builder.Configuration["OpenAIOptions:URL"] = openAiUrl;
+}
+
+services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+services.Configure<CompilerOptions>(builder.Configuration.GetSection(nameof(CompilerOptions)));
+services.Configure<OpenAIOptions>(builder.Configuration.GetSection(nameof(OpenAIOptions)));
 
 builder.Services.AddControllers();
 builder.Services.AddApiAuthentication(builder.Configuration);
@@ -33,10 +77,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApiSwaggerGen();
 builder.Services.AddDbContext<OpilochkaDbContext>();
 
-services.AddScoped<JwtProvider>();
-
+builder.Services.AddScoped<JwtProvider>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<OpilochkaDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())
