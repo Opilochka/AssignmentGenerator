@@ -12,6 +12,7 @@ var configuration = builder.Configuration;
 // Добавление конфигурации из appsettings.json
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
+
 // Добавление конфигурации из переменных окружения
 builder.Configuration.AddEnvironmentVariables();
 
