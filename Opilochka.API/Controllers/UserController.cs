@@ -10,7 +10,6 @@ using Opilochka.Core.Auth;
 namespace Opilochka.API.Controllers;
 
 [ApiController]
-[Authorize]
 [Route("api/[controller]")]
 public class UserController(ILogger<UserController> logger, OpilochkaDbContext context) : ControllerBase
 {
@@ -159,7 +158,6 @@ public class UserController(ILogger<UserController> logger, OpilochkaDbContext c
             FirstName = "Ольга",
             SecondName = "Валиева",
             Email = "olavalieva67637@gmail.com",
-            GroupId = 0,
             Role = Core.Enums.Role.Admin,
             PasswordHash = passwordHash
         };
