@@ -30,7 +30,7 @@ builder.Services.AddScoped<HttpRequestHandler>();
 // Конфигурация HttpClient для API
 builder.Services.AddHttpClient("ApiClient", options =>
 {
-    options.BaseAddress = new Uri("http://localhost:32770/api/");
+    options.BaseAddress = new Uri("https://apidiplom.networkhunter.ru/api/");
 });
 
 
