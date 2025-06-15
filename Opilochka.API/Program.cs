@@ -26,13 +26,13 @@ if (!string.IsNullOrEmpty(connectionString))
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 if (!string.IsNullOrEmpty(jwtSecretKey))
 {
-    builder.Configuration["JwtOptions:SecretKey"] = jwtSecretKey;
+    builder.Configuration["JwtOptions:SecretKey"] = "opilochka_topsecret123!opilochka_topsecret123!";
 }
 
 var jwtExpiresHours = Environment.GetEnvironmentVariable("JWT_EXPIRES_HOURS");
 if (!string.IsNullOrEmpty(jwtExpiresHours))
 {
-    builder.Configuration["JwtOptions:ExpiresHours"] = jwtExpiresHours;
+    builder.Configuration["JwtOptions:ExpiresHours"] = "12";
 }
 
 // Настройка параметров компилятора
