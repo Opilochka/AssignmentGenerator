@@ -153,6 +153,7 @@ public class UserController(ILogger<UserController> logger, OpilochkaDbContext c
         string password = passwordManager.GeneratePassword(LENGTH_PASSWORD);
         string passwordHash = passwordManager.HashPassword(password);
 
+
         var adminUser = new User
         {
             FirstName = "Юыќур",
