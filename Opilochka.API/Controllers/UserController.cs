@@ -11,11 +11,16 @@ namespace Opilochka.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(ILogger<UserController> logger, OpilochkaDbContext context) : ControllerBase
+public class UserController(ILogger<UserController> logger, 
+    OpilochkaDbContext context, 
+    IPasswordManager passwordManager,
+    IEmailService emailService) : ControllerBase
 {
     private readonly ILogger<UserController> _logger = logger;
     private readonly OpilochkaDbContext _context = context;
     private readonly int LENGTH_PASSWORD = 20;
+    private readonly IPasswordManager _passwordManager = passwordManager;
+    private readonly IEmailService _emailService = emailService;
 
     [Authorize]
     [HttpGet(Name = "GetUsers")]
@@ -63,9 +68,8 @@ public class UserController(ILogger<UserController> logger, OpilochkaDbContext c
 
         try
         {
-            PasswordManager passwordManager = new();
-            string password = passwordManager.GeneratePassword(LENGTH_PASSWORD);
-            string passwordHash = passwordManager.HashPassword(password);
+            string password = _passwordManager.GeneratePassword(LENGTH_PASSWORD);
+            string passwordHash = _passwordManager.HashPassword(password);
 
             var user = new User
             {
@@ -77,8 +81,7 @@ public class UserController(ILogger<UserController> logger, OpilochkaDbContext c
                 PasswordHash = passwordHash
             };
 
-            EmailService emailService = new();
-            emailService.SendEmail(request.Email, password);
+            _emailService.SendEmail(request.Email, password);
 
             _context.Users.Add(user);
 

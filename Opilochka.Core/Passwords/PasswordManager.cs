@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Opilochka.Core.Passwords
 {
-    public class PasswordManager
+    public class PasswordManager : IPasswordManager
     {
         public readonly string VALID_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
