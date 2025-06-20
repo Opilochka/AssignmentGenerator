@@ -4,7 +4,7 @@ using MimeKit;
 
 namespace Opilochka.Core
 {
-    public class EmailService
+    public class EmailService : IEmailService
     {
         private static readonly string SUBJECT_MESSAGE = "Доступ к системе";
         private static readonly string LOGIN_TOPIC = "login: ";
@@ -23,7 +23,7 @@ namespace Opilochka.Core
             message.Subject = SUBJECT_MESSAGE;
             message.Body = new TextPart("plain")
             {
-                Text = LOGIN_TOPIC + recipientAddress + "\n" + PASSWORD_TOPIC + password 
+                Text = LOGIN_TOPIC + recipientAddress + "\n" + PASSWORD_TOPIC + password
             };
             using (var client = new SmtpClient())
             {

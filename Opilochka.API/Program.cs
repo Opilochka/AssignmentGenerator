@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Opilochka.API;
 using Opilochka.API.Extensions;
+using Opilochka.Core;
 using Opilochka.Core.Auth;
 using Opilochka.Core.Compiler;
 using Opilochka.Core.OpenAI;
+using Opilochka.Core.Passwords;
 using System.Globalization;
 using System.Text.Encodings.Web;
 
@@ -85,6 +87,9 @@ builder.Services.AddApiAuthentication(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddApiSwaggerGen();
 builder.Services.AddDbContext<OpilochkaDbContext>();
+
+services.AddSingleton<IPasswordManager, PasswordManager>();
+services.AddTransient<IEmailService, EmailService>();
 
 builder.Services.AddScoped<JwtProvider>();
 
