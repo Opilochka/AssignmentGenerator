@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Opilochka.API;
 using Opilochka.API.Extensions;
 using Opilochka.Core.Auth;
 using Opilochka.Core.Compiler;
 using Opilochka.Core.OpenAI;
+using System.Globalization;
+using System.Text.Encodings.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -67,6 +71,11 @@ if (!string.IsNullOrEmpty(openAiUrl))
     builder.Configuration["OpenAIOptions:URL"] = openAiUrl;
 }
 
+services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+});
+
 services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 services.Configure<CompilerOptions>(builder.Configuration.GetSection(nameof(CompilerOptions)));
 services.Configure<OpenAIOptions>(builder.Configuration.GetSection(nameof(OpenAIOptions)));
@@ -86,6 +95,12 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<OpilochkaDbContext>();
     dbContext.Database.Migrate();
 }
+
+app.UseRequestLocalization(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("ru-RU");
+    options.SupportedCultures = new[] { new CultureInfo("ru-RU") };
+});
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

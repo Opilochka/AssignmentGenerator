@@ -34,6 +34,23 @@ public class OpilochkaDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"));
+        optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DefaultConnection"), options =>
+            options.CommandTimeout(30));
+    }
+
+    // Или явно указать кодировку для строковых полей
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .Property(u => u.Email)
+            .HasColumnType("nvarchar(450)"); // nvarchar для Unicode
+
+        modelBuilder.Entity<User>()
+    .Property(u => u.FirstName)
+    .HasColumnType("nvarchar(450)");
+
+        modelBuilder.Entity<User>()
+    .Property(u => u.LastName)
+    .HasColumnType("nvarchar(450)");
     }
 }
