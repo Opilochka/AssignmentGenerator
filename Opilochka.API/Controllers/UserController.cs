@@ -58,19 +58,29 @@ public class UserController(ILogger<UserController> logger,
     [HttpPost(Name = "CreateUser")]
     public async Task<IActionResult> Post([FromBody] UserRequest request)
     {
-        _logger.LogInformation("Вызван метод CreateUser с электронной почтой: {request.Email}", request.Email);
-
-        var existingUser = await _context.Users.FirstOrDefaultAsync(b => b.Email == request.Email);
-        if (existingUser != null)
-        {
-            return BadRequest(new { Error = $"Пользователь с электронной почтой {request.Email} уже существует" });
-        }
+        _logger.LogInformation("Вызван метод CreateUser с электронной почтой: {Email}", request.Email);
 
         try
         {
+            // 1. Проверка существующего пользователя
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(b => b.Email == request.Email, CancellationToken.None);
+
+            if (existingUser != null)
+            {
+                _logger.LogWarning("Пользователь с email '{Email}' уже существует", request.Email);
+                return BadRequest(new { Error = $"Пользователь с электронной почтой {request.Email} уже существует" });
+            }
+
+            _logger.LogInformation("Начинаем создание нового пользователя");
+
+            // 2. Генерация пароля
+            _logger.LogDebug("Генерируем временный пароль");
             string password = _passwordManager.GeneratePassword(LENGTH_PASSWORD);
             string passwordHash = _passwordManager.HashPassword(password);
+            _logger.LogDebug("Пароль успешно сгенерирован и захэширован");
 
+            // 3. Создаем объект пользователя
             var user = new User
             {
                 GroupId = request.GroupId,
@@ -81,23 +91,32 @@ public class UserController(ILogger<UserController> logger,
                 PasswordHash = passwordHash
             };
 
+            _logger.LogInformation("Пользователь подготовлен для сохранения: {Email}", user.Email);
+
+            // 4. Отправка email
+            _logger.LogDebug("Начинаем отправку email пользователю {Email}", user.Email);
             _emailService.SendEmail(request.Email, password);
+            _logger.LogDebug("Email успешно отправлен пользователю {Email}", user.Email);
 
-            _context.Users.Add(user);
+            // 5. Сохранение в БД
+            _logger.LogDebug("Добавляем пользователя в контекст БД");
+            await _context.Users.AddAsync(user, CancellationToken.None);
 
-            await _context.SaveChangesAsync();
+            _logger.LogDebug("Сохраняем изменения в БД");
+            await _context.SaveChangesAsync(CancellationToken.None);
 
             _logger.LogInformation("Пользователь с email '{Email}' успешно создан с идентификатором: {Id}", request.Email, user.Id);
+
             return CreatedAtAction(nameof(Post), new { id = user.Id }, user);
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError("Не удалось создать пользователя, возникло исключение: {ex.Message}", ex.Message);
-            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Ошибка подключения" });
+            _logger.LogError(ex, "Не удалось создать пользователя из-за ошибки базы данных: {Message}", ex.Message);
+            return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Ошибка подключения к базе данных" });
         }
         catch (Exception ex)
         {
-            _logger.LogError("Неизвестная ошибка: {Message}", ex.Message);
+            _logger.LogError(ex, "Произошла неизвестная ошибка при создании пользователя: {Message}", ex.Message);
             return StatusCode(StatusCodes.Status500InternalServerError, new { Error = "Произошла ошибка при создании пользователя" });
         }
     }
