@@ -38,7 +38,7 @@ namespace Opilochka.Core
 
                     _logger.LogInformation("Начата отправка email на {Recipient}", recipientAddress);
 
-                    await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls, combinedToken);
+                    await client.ConnectAsync("smtp.gmail.com", 465, MailKit.Security.SecureSocketOptions.StartTls, combinedToken);
                     _logger.LogDebug("Подключились к SMTP");
 
                     await client.AuthenticateAsync("opilochkatopsecret@gmail.com", "txej awpt rqsa fwce", combinedToken);
