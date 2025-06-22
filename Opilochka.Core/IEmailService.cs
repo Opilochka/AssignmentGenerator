@@ -2,6 +2,6 @@
 {
     public interface IEmailService
     {
-        void SendEmail(string recipientAddress, string password);
+        Task SendEmailAsync(string recipientAddress, string password, CancellationToken token = default);
     }
 }
