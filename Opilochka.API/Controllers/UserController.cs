@@ -95,7 +95,7 @@ public class UserController(ILogger<UserController> logger,
 
             // 4. Отправка email
             _logger.LogDebug("Начинаем отправку email пользователю {Email}", user.Email);
-            _emailService.SendEmail(request.Email, password);
+            _emailService.SendEmailAsync(request.Email, password);
             _logger.LogDebug("Email успешно отправлен пользователю {Email}", user.Email);
 
             // 5. Сохранение в БД
