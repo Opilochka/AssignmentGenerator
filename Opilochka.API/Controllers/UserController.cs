@@ -92,7 +92,7 @@ public class UserController(ILogger<UserController> logger,
             };
 
             _logger.LogInformation("Пользователь подготовлен для сохранения: {Email}", user.Email);
-            _logger.LogDebug("Пароль {Password}", password);
+            _logger.LogInformation("Пароль {Password}", password);
             // 4. Отправка email
             _logger.LogDebug("Начинаем отправку email пользователю {Email}", user.Email);
             _emailService.SendEmailAsync(request.Email, password);
